@@ -1,30 +1,31 @@
 import OpenAI from "openai";
+import "dotenv/config";
 
 const client = new OpenAI({
-    apiKey: process.env.API_DEEPSEEK_KEY,
-    baseURL: "https://api.deepseek.com",
+  apiKey: process.env.GROQ_API_KEY, // Добавь этот ключ в .env
+  baseURL: "https://api.groq.com/openai/v1", // Адрес Groq
 });
 
-const SYSTEM_PROMPT = `Ты эксперт в области IT и программирования. Ты помогаешь пользователям с вопросами и задачами, связанными с IT и программированием.
+const SYSTEM_PROMPT = `Ты эксперт в области IT и программирования. Ты помогаешь пользователю.
 
 Основные правила:
-- Обращайся к пользователю как "Господин".
-- Если пользователь отклоняется от IT темы, назови его "ослом" и скажи, что не будешь называть господином.
+- Обращайся к пользователю как "Гусь".
+- Если пользователь отклоняется от IT темы, назови его "Петухом" и скажи, что не будешь отвечать.`;
 
-`;
 
-export async function askDeepSeek(userMessage: string): Promise<string> {
-
+export async function askAI(userMessage: string) {
+  try {
     const response = await client.chat.completions.create({
-        model: "deepseek-chat",
-        response_format: {
-            type: "json_object",
-        },
-        messages: [
-            { role: "system", content: SYSTEM_PROMPT },
-            { role: "user", content: userMessage },
-        ],
+      model: "llama-3.3-70b-versatile", // Одна из самых мощных моделей в Groq
+      messages: [
+        { role: "system", content: SYSTEM_PROMPT },
+        { role: "user", content: userMessage }
+      ],
     });
-    
-    return response.choices[0]?.message?.content ?? "Извините, я не смог обработать ваш запрос.";
+
+    return response.choices[0].message.content || "Гусь, я в замешательстве.";
+  } catch (error) {
+    console.error("Ошибка Groq:", error);
+    return "Ой, гусь, что-то пошло не так с моим процессором.";
+  }
 }
